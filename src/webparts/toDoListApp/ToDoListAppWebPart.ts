@@ -10,10 +10,9 @@ import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 import * as strings from 'ToDoListAppWebPartStrings';
 import ToDoListApp from './components/ToDoListApp';
 import { IToDoListAppProps } from './components/IToDoListAppProps';
+import { IToDoListAppWebPartProps } from './IToDoListAppWebPartProps';
 
-export interface IToDoListAppWebPartProps {
-  description: string;
-}
+
 
 export default class ToDoListAppWebPart extends BaseClientSideWebPart <IToDoListAppWebPartProps> {
 
