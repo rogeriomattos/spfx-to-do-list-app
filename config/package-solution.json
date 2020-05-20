@@ -1,0 +1,13 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "to-do-list-app-client-side-solution",
+    "id": "60eb5bf6-f39f-4075-aef1-9d14deb2ae36",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "isDomainIsolated": false
+  },
+  "paths": {
+    "zippedPackage": "solution/to-do-list-app.sppkg"
+  }
+}
