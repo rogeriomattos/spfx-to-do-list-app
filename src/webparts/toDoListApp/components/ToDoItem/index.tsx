@@ -1,8 +1,10 @@
 import * as React from 'react';
-import { Checkbox, TextField } from 'office-ui-fabric-react';
+import { Checkbox, TextField, IconButton, IIconProps } from 'office-ui-fabric-react';
 import { IToDoItemProps } from './props';
 import { IToDoItemState } from './state';
 import { IToDoItem } from '../../contracts/IToDoItem';
+
+const deleteIcon: IIconProps = { iconName: 'Delete' };
 
 export class ToDoItem extends React.Component<IToDoItemProps, IToDoItemState> {
 
@@ -19,7 +21,8 @@ export class ToDoItem extends React.Component<IToDoItemProps, IToDoItemState> {
     }
 
     public render(){
-        const { item, className } = this.props;
+        const { item, className, removeItem } = this.props;
+        
         return (
             <div className={(className)? className : ''}>
                 <Checkbox 
@@ -33,6 +36,7 @@ export class ToDoItem extends React.Component<IToDoItemProps, IToDoItemState> {
                     value={item.label} 
                     underlined 
                 /> 
+                <IconButton onClick={(e) => removeItem(item)} iconProps={deleteIcon} title="Remove" ariaLabel="Remove"/>
             </div>
         );
     }

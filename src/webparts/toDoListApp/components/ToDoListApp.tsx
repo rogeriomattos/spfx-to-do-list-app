@@ -32,6 +32,19 @@ export default class ToDoListApp extends React.Component<IToDoListAppProps, IToD
     };
   }
 
+  public removeItem(item: IToDoItem) {
+    let { items } = this.state;
+
+    const itemIndex = items.indexOf(item);
+    
+    if(itemIndex != -1)
+      items.splice(itemIndex, 1);
+
+    this.setState({
+      items
+    });
+  }
+
   public  changeItem(item: IToDoItem) {
     let { items } = this.state;
 
@@ -81,7 +94,8 @@ export default class ToDoListApp extends React.Component<IToDoListAppProps, IToD
             <ToDoItem 
               key={'item' + item.id}
               item={item} 
-              changeItem={this.changeItem.bind(this)} 
+              changeItem={this.changeItem.bind(this)}
+              removeItem={this.removeItem.bind(this)} 
               className={styles.item}
             />       
           )
