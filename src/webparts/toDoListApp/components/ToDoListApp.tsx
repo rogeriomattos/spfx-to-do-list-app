@@ -3,8 +3,9 @@ import styles from './ToDoListApp.module.scss';
 import { IToDoListAppProps } from './IToDoListAppProps';
 import { IToDoListAppState } from './IToDoListAppState';
 import { escape } from '@microsoft/sp-lodash-subset';
-import { Checkbox, Label, ActionButton, IIconProps } from 'office-ui-fabric-react';
+import { Checkbox, Label, ActionButton, IIconProps, TextField } from 'office-ui-fabric-react';
 import { IToDoItem } from '../contracts/IToDoItem';
+import { ToDoItem } from './ToDoItem';
 
 const addIcon: IIconProps = { iconName: 'Add' };
 
@@ -14,7 +15,8 @@ const createToDoItems = (length = 10): IToDoItem[] => {
     items.push({
       id: i,
       label: 'item ' + i,
-      isChecked: false
+      isChecked: false,
+      isEditing: false
     });
   return items;
 };
@@ -30,13 +32,13 @@ export default class ToDoListApp extends React.Component<IToDoListAppProps, IToD
     };
   }
 
-  public  changeIsCheckedItem(item: IToDoItem, checked: boolean) {
+  public  changeItem(item: IToDoItem) {
     let { items } = this.state;
 
     const itemIndex = items.indexOf(item);
     
     if(itemIndex != -1)
-      items[itemIndex].isChecked = checked;
+      items[itemIndex] = item;
 
     this.setState({
       items
@@ -57,34 +59,32 @@ export default class ToDoListApp extends React.Component<IToDoListAppProps, IToD
       });
     }
   }
+
   
   public render(): React.ReactElement<IToDoListAppProps> {
-    const { items } = this.state;
-
-    const itemsChecked =  items.filter((item)=>(item.isChecked));
-    const itemsUnChecked =  items.filter((item)=>(!item.isChecked));
+    let { items } = this.state;
+    
+    items = items.sort((a, b) => b.id - a.id);
 
     return (
       <div className={ styles.toDoListApp }>
-        
-        <h1>To Do</h1>
-        <ActionButton styles={{icon:{margin:0}, root: {padding: 0}}} iconProps={addIcon} allowDisabledFocus  onClick={()=>{console.log('click');}}>
+        <ActionButton 
+          styles={{icon:{margin:0}, root: {padding: 0}}} 
+          iconProps={addIcon} 
+          allowDisabledFocus 
+          onClick={()=>{console.log('click');}}
+        >
           New Item
-        </ActionButton>        
+        </ActionButton> 
         {
-          itemsUnChecked.map((item: IToDoItem, index: number)=>(
-            <div className={styles.item} key={'item' + item.id}>
-              <Checkbox checked={item.isChecked} label={item.label} onChange={(e,checked: boolean) => this.changeIsCheckedItem(item, checked)} />
-            </div>
-          ))
-        }
-        <h1>To Done</h1>
-        {
-          itemsChecked.map((item: IToDoItem, index: number)=> (
-            <div className={styles.item} key={'item' + item.id}>
-              <Checkbox checked={item.isChecked} label={item.label} onChange={(e,checked: boolean) => this.changeIsCheckedItem(item, checked)} />
-            </div>
-          ))
+          items.map((item: IToDoItem) =>
+            <ToDoItem 
+              key={'item' + item.id}
+              item={item} 
+              changeItem={this.changeItem.bind(this)} 
+              className={styles.item}
+            />       
+          )
         }
       </div>
     );
