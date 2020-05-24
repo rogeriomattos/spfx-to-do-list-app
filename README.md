@@ -1,6 +1,7 @@
-## to-do-list-app
+## SPFX To Do List App
 
-This is where you include your WebPart documentation.
+
+![Demo To Do List App](/demos/demo1.gif)
 
 ### Building the code
 
