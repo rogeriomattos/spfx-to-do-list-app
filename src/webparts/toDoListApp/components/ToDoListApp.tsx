@@ -60,6 +60,23 @@ export default class ToDoListApp extends React.Component<IToDoListAppProps, IToD
     //Colocar aqui um update item na lista do sharepoint mundando o valor da prop IsChecked
   }
 
+  public newItem() {
+    
+    let { items } = this.state;
+
+    items.push({
+      id: items.length,
+      isChecked: false,
+      label: '',
+      isEditing: false
+    });
+
+    this.setState({
+      items
+    });
+    //Colocar aqui um new item na lista do sharepoint com o item em branco
+  }
+
   public saveNewItem(){
     let { items, newItem } = this.state;
 
@@ -85,7 +102,7 @@ export default class ToDoListApp extends React.Component<IToDoListAppProps, IToD
           styles={{icon:{margin:0}, root: {padding: 0}}} 
           iconProps={addIcon} 
           allowDisabledFocus 
-          onClick={()=>{console.log('click');}}
+          onClick={this.newItem.bind(this)}
         >
           New Item
         </ActionButton> 

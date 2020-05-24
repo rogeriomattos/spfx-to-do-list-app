@@ -28,15 +28,21 @@ export class ToDoItem extends React.Component<IToDoItemProps, IToDoItemState> {
                 <Checkbox 
                     checked={item.isChecked} 
                     onChange={(e,checked: boolean) => this.changeChecked(checked)} 
-                    styles={{root: {display: 'inline-block'}}}
+                    styles={{root: {display: 'inline-block', maxWidth: '24px'}}}
                 />
                 <TextField
                     onChanged={(newValue: string)=> this.changeLabel(newValue)} 
-                    styles={{wrapper:{display: 'inline-block'}, root:{display:'inline-block'}}} 
+                    styles={{wrapper:{display: 'inline-block'}, root:{display:'inline-block', width: 'calc(100% - 24px - 32px)'}}} 
                     value={item.label} 
-                    underlined 
+                    underlined
                 /> 
-                <IconButton onClick={(e) => removeItem(item)} iconProps={deleteIcon} title="Remove" ariaLabel="Remove"/>
+                <IconButton 
+                    onClick={(e) => removeItem(item)} 
+                    styles={{root:{maxWidth: '32px'}}}
+                    iconProps={deleteIcon} 
+                    title="Remove" 
+                    ariaLabel="Remove"
+                />
             </div>
         );
     }
