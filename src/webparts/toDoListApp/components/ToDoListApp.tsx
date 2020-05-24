@@ -3,7 +3,7 @@ import styles from './ToDoListApp.module.scss';
 import { IToDoListAppProps } from './IToDoListAppProps';
 import { IToDoListAppState } from './IToDoListAppState';
 import { escape } from '@microsoft/sp-lodash-subset';
-import { Checkbox, Label, ActionButton, IIconProps, TextField } from 'office-ui-fabric-react';
+import { Checkbox, Label, ActionButton, IIconProps, TextField, ProgressIndicator } from 'office-ui-fabric-react';
 import { IToDoItem } from '../contracts/IToDoItem';
 import { ToDoItem } from './ToDoItem';
 
@@ -27,7 +27,7 @@ export default class ToDoListApp extends React.Component<IToDoListAppProps, IToD
     super(props);
 
     this.state = {
-      items: createToDoItems(),
+      items: [], //createToDoItems(),
       newItem: null
     };
   }
@@ -90,6 +90,19 @@ export default class ToDoListApp extends React.Component<IToDoListAppProps, IToD
     }
   }
 
+  public progressFinishedItems() {
+    
+    const { items }  = this.state;
+    const itemsFinished = items.filter((item)=>(item.isChecked));
+    
+    if(itemsFinished.length > 0) {
+      const porcent = 1 / items.length;
+      
+      return ((porcent * 10 )  * itemsFinished.length)/10; 
+    }
+    
+    return 0;
+  }
   
   public render(): React.ReactElement<IToDoListAppProps> {
     let { items } = this.state;
@@ -106,6 +119,12 @@ export default class ToDoListApp extends React.Component<IToDoListAppProps, IToD
         >
           New Item
         </ActionButton> 
+        {items.length > 0 &&
+          <ProgressIndicator 
+            label={(this.progressFinishedItems()  * 100).toFixed(0) + '% completed'}  
+            percentComplete={this.progressFinishedItems()} 
+          />
+        }
         {
           items.map((item: IToDoItem) =>
             <ToDoItem 
