@@ -55,7 +55,7 @@ export default class ToDoListApp extends React.Component<IToDoListAppProps, IToD
         items: items.map((item): IToDoItem => {
                   return {
                     id: item.Id,
-                    isChecked: item.isChecked,
+                    isChecked: item.IsChecked,
                     label: item.Title,
                     isEditing: false
                   };
@@ -78,34 +78,38 @@ export default class ToDoListApp extends React.Component<IToDoListAppProps, IToD
   }
 
   public  changeItem(item: IToDoItem) {
+    
+
+    const { listTitle } = this.props;
+
     let { items } = this.state;
 
     const itemIndex = items.indexOf(item);
     
     if(itemIndex != -1)
-      items[itemIndex] = item;
+      sp.web.lists.getByTitle(listTitle).items.getById(item.id).update({Title: item.label, IsChecked: item.isChecked})
+      .then(({data}: IItemAddResult) => {
+        
+        items[itemIndex] = item;
 
-    this.setState({
-      items
-    });
-
-    //Colocar aqui um update item na lista do sharepoint mundando o valor da prop IsChecked
+        this.setState({
+          items
+        });
+      });
   }
 
   public newItem() {
     
     const { listTitle } = this.props;
-    sp.web.lists.getByTitle(listTitle).items.add(
-      {Title:'', isChecked: false}
-    ).then(({data}: IItemAddResult) => {
-        console.log(data);
-        console.log(data.Title);
+    
+    sp.web.lists.getByTitle(listTitle).items.add({Title:'', IsChecked: false})
+    .then(({data}: IItemAddResult) => {
         
         let { items } = this.state;
 
         items.push({
           id: data.Id,
-          isChecked: data.isChecked,
+          isChecked: data.IsChecked,
           label: data.Title,
           isEditing: false
         });
@@ -115,22 +119,6 @@ export default class ToDoListApp extends React.Component<IToDoListAppProps, IToD
         });
 
     });
-
-    
-    //Colocar aqui um new item na lista do sharepoint com o item em branco
-  }
-
-  public saveNewItem(){
-    let { items, newItem } = this.state;
-
-    if(newItem != null){
-      items.push(newItem);
-
-      this.setState({
-        items, 
-        newItem: null
-      });
-    }
   }
 
   public progressFinishedItems() {

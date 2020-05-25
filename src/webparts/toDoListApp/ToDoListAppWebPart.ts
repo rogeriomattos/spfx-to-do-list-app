@@ -94,7 +94,7 @@ export default class ToDoListAppWebPart extends BaseClientSideWebPart <IToDoList
 
     sp.web.lists.add(this.properties.listTitle).then(async(res: IListAddResult)=> {
       console.log(res);
-      const fieldIsChecked = await sp.web.lists.getByTitle(this.properties.listTitle).fields.addBoolean('isChecked');
+      const fieldIsChecked = await sp.web.lists.getByTitle(this.properties.listTitle).fields.addBoolean('IsChecked');
       console.log(fieldIsChecked);
       this.context.propertyPane.refresh();
     })
