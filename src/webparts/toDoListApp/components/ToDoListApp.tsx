@@ -6,6 +6,8 @@ import { escape } from '@microsoft/sp-lodash-subset';
 import { Checkbox, Label, ActionButton, IIconProps, TextField, ProgressIndicator } from 'office-ui-fabric-react';
 import { IToDoItem } from '../contracts/IToDoItem';
 import { ToDoItem } from './ToDoItem';
+import { sp } from '@pnp/sp';
+import { IItemAddResult } from '@pnp/sp/items';
 
 const addIcon: IIconProps = { iconName: 'Add' };
 
@@ -25,11 +27,41 @@ export default class ToDoListApp extends React.Component<IToDoListAppProps, IToD
   
   constructor(props: IToDoListAppProps){
     super(props);
+    console.log(this.props);
+    console.log(this.context);
+
+    sp.setup({
+      sp: {
+        headers: {
+          Accept: "application/json;odata=verbose",
+        },
+        baseUrl: this.props.absoluteUrl
+      },
+    });
 
     this.state = {
       items: [], //createToDoItems(),
       newItem: null
     };
+  }
+
+  public getItems() {
+    sp.web.lists.getByTitle(this.props.listTitle)
+    .items
+    .orderBy('Id', false)
+    .get()
+    .then((items) =>{
+      this.setState({
+        items: items.map((item): IToDoItem => {
+                  return {
+                    id: item.Id,
+                    isChecked: item.isChecked,
+                    label: item.Title,
+                    isEditing: false
+                  };
+                })
+      });
+    });
   }
 
   public removeItem(item: IToDoItem) {
@@ -62,18 +94,29 @@ export default class ToDoListApp extends React.Component<IToDoListAppProps, IToD
 
   public newItem() {
     
-    let { items } = this.state;
+    const { listTitle } = this.props;
+    sp.web.lists.getByTitle(listTitle).items.add(
+      {Title:'', isChecked: false}
+    ).then(({data}: IItemAddResult) => {
+        console.log(data);
+        console.log(data.Title);
+        
+        let { items } = this.state;
 
-    items.push({
-      id: items.length,
-      isChecked: false,
-      label: '',
-      isEditing: false
+        items.push({
+          id: data.Id,
+          isChecked: data.isChecked,
+          label: data.Title,
+          isEditing: false
+        });
+    
+        this.setState({
+          items
+        });
+
     });
 
-    this.setState({
-      items
-    });
+    
     //Colocar aqui um new item na lista do sharepoint com o item em branco
   }
 
@@ -102,6 +145,10 @@ export default class ToDoListApp extends React.Component<IToDoListAppProps, IToD
     }
     
     return 0;
+  }
+
+  public componentDidMount(){
+    this.getItems();
   }
   
   public render(): React.ReactElement<IToDoListAppProps> {

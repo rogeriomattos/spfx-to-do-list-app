@@ -1,3 +1,4 @@
 export interface IToDoListAppProps {
-  description: string;
+  listTitle: string;
+  absoluteUrl: string;
 }

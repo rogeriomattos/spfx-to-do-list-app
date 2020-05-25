@@ -19,7 +19,8 @@
     "description": { "default": "To Do List webpart built using spfx framework" },
     "officeFabricIconFontName": "TaskLogo",
     "properties": {
-      "description": "ToDoListApp"
+      "description": "ToDoListApp",
+      "listTitle": "To Do List - SPFX App"
     }
   }]
 }
