@@ -18,7 +18,7 @@ const createToDoItems = (length = 10): IToDoItem[] => {
       id: i,
       label: 'item ' + i,
       isChecked: false,
-      isEditing: false
+      isWhaitSave: false
     });
   return items;
 };
@@ -27,9 +27,7 @@ export default class ToDoListApp extends React.Component<IToDoListAppProps, IToD
   
   constructor(props: IToDoListAppProps){
     super(props);
-    console.log(this.props);
-    console.log(this.context);
-
+    
     sp.setup({
       sp: {
         headers: {
@@ -57,7 +55,7 @@ export default class ToDoListApp extends React.Component<IToDoListAppProps, IToD
                     id: item.Id,
                     isChecked: item.IsChecked,
                     label: item.Title,
-                    isEditing: false
+                    isWhaitSave: false
                   };
                 })
       });
@@ -70,15 +68,17 @@ export default class ToDoListApp extends React.Component<IToDoListAppProps, IToD
 
     const itemIndex = items.indexOf(item);
     
-    if(itemIndex != -1)
-      sp.web.lists.getByTitle(listTitle).items.getById(item.id).delete().then((res)=>{
-        items.splice(itemIndex, 1);
+    if(itemIndex != -1){
+      items.splice(itemIndex, 1);
 
-        this.setState({
-          items
-        });
+      this.setState({
+        items
       });
-      
+    
+      sp.web.lists.getByTitle(listTitle).items.getById(item.id).delete().then((res)=>{
+        console.log('deletou');
+      });
+    }  
   }
 
   public  changeItem(item: IToDoItem) {
@@ -88,39 +88,53 @@ export default class ToDoListApp extends React.Component<IToDoListAppProps, IToD
     let { items } = this.state;
 
     const itemIndex = items.indexOf(item);
+
+    items[itemIndex] = item;
+
+    this.setState({
+      items
+    });
     
     if(itemIndex != -1)
       sp.web.lists.getByTitle(listTitle).items.getById(item.id).update({Title: item.label, IsChecked: item.isChecked})
       .then(({data}: IItemAddResult) => {
-        
-        items[itemIndex] = item;
-
-        this.setState({
-          items
-        });
-      });
+        console.log('salvou');
+      })
+      .catch((error)=> {
+        console.log(error);
+      }); 
   }
 
   public newItem() {
     
     const { listTitle } = this.props;
-    
-    sp.web.lists.getByTitle(listTitle).items.add({Title:'', IsChecked: false})
-    .then(({data}: IItemAddResult) => {
-        
-        let { items } = this.state;
 
-        items.push({
-          id: data.Id,
-          isChecked: data.IsChecked,
-          label: data.Title,
-          isEditing: false
-        });
+    const { items } = this.state;
     
+    items.push({
+      id:(items.length > 0)? items[0].id + 1 : null,
+      isChecked: false,
+      label: '',
+      isWhaitSave: true
+    });
+    
+    this.setState({
+      items
+    });
+
+    sp.web.lists.getByTitle(listTitle).items.add({Title:'', IsChecked: false})
+    .then(({data}: IItemAddResult) => {    
+        
+        items[0] = {
+          id: data.Id,
+          isChecked: data.IsCheked,
+          label: data.Title,
+          isWhaitSave: false
+        };
+
         this.setState({
           items
         });
-
     });
   }
 
@@ -138,7 +152,7 @@ export default class ToDoListApp extends React.Component<IToDoListAppProps, IToD
     return 0;
   }
 
-  public componentDidMount(){
+  public componentDidMount() {
     this.getItems();
   }
   
