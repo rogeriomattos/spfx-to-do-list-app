@@ -2,26 +2,17 @@ import * as React from 'react';
 import styles from './ToDoListApp.module.scss';
 import { IToDoListAppProps } from './IToDoListAppProps';
 import { IToDoListAppState } from './IToDoListAppState';
-import { escape } from '@microsoft/sp-lodash-subset';
-import { Checkbox, Label, ActionButton, IIconProps, TextField, ProgressIndicator } from 'office-ui-fabric-react';
+import { ActionButton, IIconProps, ProgressIndicator } from 'office-ui-fabric-react';
 import { IToDoItem } from '../contracts/IToDoItem';
 import { ToDoItem } from './ToDoItem';
 import { sp } from '@pnp/sp';
 import { IItemAddResult } from '@pnp/sp/items';
 
-const addIcon: IIconProps = { iconName: 'Add' };
+import debounceEvent from '../utils/debounceEvent';
 
-const createToDoItems = (length = 10): IToDoItem[] => {
-  let items: IToDoItem[] = [];
-  for(let i = 0; i < length; i++ )
-    items.push({
-      id: i,
-      label: 'item ' + i,
-      isChecked: false,
-      isWhaitSave: false
-    });
-  return items;
-};
+const debounce = debounceEvent();
+
+const addIcon: IIconProps = { iconName: 'Add' };
 
 export default class ToDoListApp extends React.Component<IToDoListAppProps, IToDoListAppState> {
   
@@ -94,48 +85,51 @@ export default class ToDoListApp extends React.Component<IToDoListAppProps, IToD
     this.setState({
       items
     });
-    
-    if(itemIndex != -1)
-      sp.web.lists.getByTitle(listTitle).items.getById(item.id).update({Title: item.label, IsChecked: item.isChecked})
-      .then(({data}: IItemAddResult) => {
-        console.log('salvou');
-      })
-      .catch((error)=> {
-        console.log(error);
-      }); 
+
+    debounce(() => {
+      if(itemIndex != -1)
+        sp.web.lists.getByTitle(listTitle).items.getById(item.id).update({Title: item.label, IsChecked: item.isChecked})
+        .then(({data}: IItemAddResult) => {
+          console.log('salvou');
+        })
+        .catch((error)=> {
+          console.log(error);
+        }); 
+    }, 500);
   }
 
   public newItem() {
-    
-    const { listTitle } = this.props;
+    debounce(() => {
+      const { listTitle } = this.props;
 
-    const { items } = this.state;
-    
-    items.push({
-      id:(items.length > 0)? items[0].id + 1 : null,
-      isChecked: false,
-      label: '',
-      isWhaitSave: true
-    });
-    
-    this.setState({
-      items
-    });
+      const { items } = this.state;
+      
+      items.push({
+        id:(items.length > 0)? items[0].id + 1 : null,
+        isChecked: false,
+        label: '',
+        isWhaitSave: true
+      });
+      
+      this.setState({
+        items
+      });
+      
+      sp.web.lists.getByTitle(listTitle).items.add({Title:'', IsChecked: false})
+      .then(({data}: IItemAddResult) => {    
+          
+          items[0] = {
+            id: data.Id,
+            isChecked: data.IsCheked,
+            label: data.Title,
+            isWhaitSave: false
+          };
 
-    sp.web.lists.getByTitle(listTitle).items.add({Title:'', IsChecked: false})
-    .then(({data}: IItemAddResult) => {    
-        
-        items[0] = {
-          id: data.Id,
-          isChecked: data.IsCheked,
-          label: data.Title,
-          isWhaitSave: false
-        };
-
-        this.setState({
-          items
-        });
-    });
+          this.setState({
+            items
+          });
+      });
+    }, 100);
   }
 
   public progressFinishedItems() {
