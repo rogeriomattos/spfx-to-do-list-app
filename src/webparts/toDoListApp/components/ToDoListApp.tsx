@@ -2,7 +2,7 @@ import * as React from 'react';
 import styles from './ToDoListApp.module.scss';
 import { IToDoListAppProps } from './IToDoListAppProps';
 import { IToDoListAppState } from './IToDoListAppState';
-import { ActionButton, IIconProps, ProgressIndicator } from 'office-ui-fabric-react';
+import { ActionButton, IIconProps, ProgressIndicator, AnimationVariables, AnimationStyles, AnimationClassNames } from 'office-ui-fabric-react';
 import { IToDoItem } from '../contracts/IToDoItem';
 import { ToDoItem } from './ToDoItem';
 import { sp } from '@pnp/sp';
@@ -18,7 +18,7 @@ export default class ToDoListApp extends React.Component<IToDoListAppProps, IToD
   
   constructor(props: IToDoListAppProps){
     super(props);
-    
+    console.log(AnimationClassNames);
     sp.setup({
       sp: {
         headers: {
@@ -35,8 +35,10 @@ export default class ToDoListApp extends React.Component<IToDoListAppProps, IToD
   }
 
   public getItems() {
+    console.log(this.props.user.Id);
     sp.web.lists.getByTitle(this.props.listTitle)
     .items
+    .filter('Author eq ' + this.props.user.Id)
     .orderBy('Id', false)
     .get()
     .then((items) =>{
@@ -46,7 +48,8 @@ export default class ToDoListApp extends React.Component<IToDoListAppProps, IToD
                     id: item.Id,
                     isChecked: item.IsChecked,
                     label: item.Title,
-                    isWhaitSave: false
+                    isWhaitSave: false,
+                    actionClass: ''
                   };
                 })
       });
@@ -60,12 +63,21 @@ export default class ToDoListApp extends React.Component<IToDoListAppProps, IToD
     const itemIndex = items.indexOf(item);
     
     if(itemIndex != -1){
-      items.splice(itemIndex, 1);
+     
+      items[itemIndex].actionClass = AnimationClassNames.slideRightOut40;
 
       this.setState({
         items
       });
-    
+      console.log('x');
+      setTimeout(()=> {
+        console.log('y');
+        items.splice(itemIndex, 1);
+
+        this.setState({
+          items
+        });
+      }, 100);
       sp.web.lists.getByTitle(listTitle).items.getById(item.id).delete().then((res)=>{
         console.log('deletou');
       });
@@ -108,7 +120,8 @@ export default class ToDoListApp extends React.Component<IToDoListAppProps, IToD
         id:(items.length > 0)? items[0].id + 1 : null,
         isChecked: false,
         label: '',
-        isWhaitSave: true
+        isWhaitSave: true,
+        actionClass: AnimationClassNames.slideRightIn400
       });
       
       this.setState({
@@ -118,12 +131,7 @@ export default class ToDoListApp extends React.Component<IToDoListAppProps, IToD
       sp.web.lists.getByTitle(listTitle).items.add({Title:'', IsChecked: false})
       .then(({data}: IItemAddResult) => {    
           
-          items[0] = {
-            id: data.Id,
-            isChecked: data.IsCheked,
-            label: data.Title,
-            isWhaitSave: false
-          };
+          items[0].id = data.Id;
 
           this.setState({
             items
@@ -156,7 +164,7 @@ export default class ToDoListApp extends React.Component<IToDoListAppProps, IToD
     items = items.sort((a, b) => b.id - a.id);
 
     return (
-      <div className={ styles.toDoListApp }>
+      <div className={ styles.toDoListApp } style={{height: this.props.heightWebPart}}>
         <ActionButton 
           styles={{icon:{margin:0}, root: {padding: 0}}} 
           iconProps={addIcon} 
@@ -171,10 +179,11 @@ export default class ToDoListApp extends React.Component<IToDoListAppProps, IToD
             percentComplete={this.progressFinishedItems()} 
           />
         }
+
         {
-          items.map((item: IToDoItem) =>
-            <ToDoItem 
-              key={'item' + item.id}
+          items.map((item: IToDoItem, index: number) =>
+          <ToDoItem   
+              key={'item' + index}
               item={item} 
               changeItem={this.changeItem.bind(this)}
               removeItem={this.removeItem.bind(this)} 

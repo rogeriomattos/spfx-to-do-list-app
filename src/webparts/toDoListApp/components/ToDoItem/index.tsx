@@ -24,7 +24,7 @@ export class ToDoItem extends React.Component<IToDoItemProps, IToDoItemState> {
         const { item, className, removeItem } = this.props;
         
         return (
-            <div className={(className)? className : ''}>
+            <div className={((className)? className : '') + ' ' + item.actionClass}>
                 <Checkbox 
                     checked={item.isChecked} 
                     onChange={(e,checked: boolean) => this.changeChecked(checked)} 

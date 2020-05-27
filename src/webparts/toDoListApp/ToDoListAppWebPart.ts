@@ -17,29 +17,34 @@ import "@pnp/sp/webs";
 import "@pnp/sp/lists/web";
 import "@pnp/sp/fields";
 import "@pnp/sp/items";
+import "@pnp/sp/site-users";
 import { IListAddResult } from '@pnp/sp/lists';
 import { FieldTypes } from '@pnp/sp/fields';
+
+import { ISiteUser } from '@pnp/sp/site-users';
 
 
 export default class ToDoListAppWebPart extends BaseClientSideWebPart <IToDoListAppWebPartProps> {
 
   private listTitleDefault: string = 'To Do List - SPFX App';
-
+  
   constructor(){
     super();
     console.log('constructors');
     
   }
 
-  public render(): void {
+  public async render() {
     console.log('render');
     this.verifyThereAreTheListInSite();
 
     const element: React.ReactElement<IToDoListAppProps> = React.createElement(
       ToDoListApp,
       {
+        heightWebPart: this.properties.heightWebPart,
         listTitle: this.properties.listTitle,
-        absoluteUrl: this.context.pageContext.site.absoluteUrl
+        absoluteUrl: this.context.pageContext.site.absoluteUrl,
+        user: await sp.web.currentUser.get()
       }
     );
 
@@ -113,6 +118,9 @@ export default class ToDoListAppWebPart extends BaseClientSideWebPart <IToDoList
               groupFields: [
                 PropertyPaneTextField('listTitle',{
                   label: 'List'
+                }), 
+                PropertyPaneTextField('heightWebPart',{
+                  label: 'Height Web Part'
                 }) 
               ]
             }

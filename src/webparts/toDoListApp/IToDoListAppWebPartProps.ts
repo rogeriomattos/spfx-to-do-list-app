@@ -1,4 +1,4 @@
 export interface IToDoListAppWebPartProps {
-    description: string;
+    heightWebPart: string;
     listTitle: string;
 }
