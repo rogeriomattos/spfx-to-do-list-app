@@ -5,6 +5,15 @@ Sample SPFx webpart built using React, this webpart allows users to create a to-
 
 ![Demo To Do List App](/demos/demo1.gif)
 
+### Features
+This webpart illustrates the following concepts on top of the SharePoint Framework:
+
+- Using React for building SharePoint Framework client-side webparts
+- Using Office UI Fabric React styles for building user experience consistent with SharePoint and Office
+- Communicating with the SharePoint REST API and PnP API
+- Passing webpart properties to React components
+
+
 ### Building the code
 
 ```bash
