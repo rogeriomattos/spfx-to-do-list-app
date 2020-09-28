@@ -1,4 +1,6 @@
-## SPFX To Do List App
+# To Do List Webpart Sample :clipboard: :heavy_check_mark:
+
+Sample SPFx webpart built using React, this webpart allows users to create a to-do list and also presents their progress in completing items.
 
 
 ![Demo To Do List App](/demos/demo1.gif)
